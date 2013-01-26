@@ -1,4 +1,8 @@
-dg
-==
+DOMGenerator(DG)
+==================
 
-Dom Generator
+Simple, fast and lighweight template engine for javascript.
+
+Usage
+-----
+
