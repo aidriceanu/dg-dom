@@ -1,0 +1,27 @@
+{
+  "name": "dg",
+  "version": "1.0.0",
+  "description": "A simple and lightweight template engine for javascript.",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crazyidry/dg.git"
+  },
+  "keywords": [
+    "javascript",
+    "template",
+    "engine",
+    "template-engine",
+    "simple",
+    "lightweight"
+  ],
+  "author": "Andrei Idriceanu",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/crazyidry/dg/issues"
+  },
+  "homepage": "https://github.com/crazyidry/dg#readme"
+}

@@ -51,8 +51,9 @@ dgf = {};
 dgi = 0;
 
 function dgv2 (html) {
-    if (html instanceof Function)
-    return dgv2(html());
+    if (html instanceof Function) {
+        return dgv2(html());
+    }
     
     if (html instanceof String || typeof html == 'string' || typeof html == 'number') {
         var div = document.createElement('div');
