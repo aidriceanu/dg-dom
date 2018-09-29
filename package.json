@@ -14,9 +14,10 @@
     "javascript",
     "template",
     "engine",
-    "template-engine",
-    "simple",
-    "lightweight"
+    "template engine",
+    "simple template engine",
+    "lightweight template engine",
+    "simple lightweight template engine for javascript"
   ],
   "author": "Andrei Idriceanu",
   "license": "ISC",
