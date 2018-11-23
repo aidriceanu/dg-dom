@@ -34,14 +34,15 @@ Function.prototype.dgBind = function (){
     return this.bind.apply(this, arg);
 };
 
-function ucfirst (str) {
-    return str.charAt(0).toUpperCase() + str.substr(1);
+
+String.prototype.ucfirst = function () {
+    return this.charAt(0).toUpperCase() + this.substr(1);
 }
 
-function camelcase (string) {
-    var result = string.split('-');
+String.prototype.camelcase = function() {
+    var result = this.split('-');
     for (var i =1; i < result.length; i++) {
-        result[i] = ucfirst(result[i]);
+        result[i] = result[i].ucfirst();
     }
     return result.join('');
 }
