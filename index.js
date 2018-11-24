@@ -37,7 +37,7 @@ Function.prototype.dgBind = function (){
 
 String.prototype.ucfirst = function () {
     return this.charAt(0).toUpperCase() + this.substr(1);
-}
+};
 
 String.prototype.camelcase = function() {
     var result = this.split('-');
@@ -45,137 +45,149 @@ String.prototype.camelcase = function() {
         result[i] = result[i].ucfirst();
     }
     return result.join('');
+};
+
+var dgDomScriptFunctions = {};
+
+var dgDomScriptMaxIndex = 0;
+
+function renderString(html)
+{
+    let template = document.createElement('template');
+    template.innerHTML = html;
+    return template.content.childNodes;
 }
 
-dgf = {};
-
-dgi = 0;
-
-function dgv2 (html) {
-    if (html instanceof Function) {
-        return dgv2(html());
+function renderArray(html)
+{
+    if (typeof html[0] === 'string' && html[0] !== '') {
+        let tagName = html.shift();
+        var parent = document.createElement(tagName);
     }
-    
-    if (html instanceof String || typeof html == 'string' || typeof html == 'number') {
-        var div = document.createElement('div');
-        div.innerHTML = html;
-        var elems = [];
-        while (div.childNodes.length) {
-            var node = div.childNodes[0];
-            div.removeChild(node);
-            elems.push(node);
-        }
-        return elems;
-    }
-    
-    if (html instanceof Array) {
-        var txt = null;
-        if (typeof html[0] === 'string' && html[0] != '') {
-            var tag = html[0];
-            var txt = document.createElement(html[0]);
-            var children = [];
-    
-            for (var i = 1; i < html.length; i++) {
-                if (tag == 'script') {
-                    if (html[i] instanceof  Function) {
-                        dgf[dgi] = html[i];
-                        html[i] = '(dgf[' + dgi + '])();';
-                        dgi++;
-                    } else if (typeof html[i] != 'string') {
-                        for (var j in html[i]) {
-                            if (/^on.+/.test(j) && (html[i][j] instanceof Function)) {
-                                txt[j] = html[i][j];
-                            } else {
-                                $(txt).attr(j, html[i][j] + '');
-                            }
-                        }
-                        continue;
-                    } 
-                    try {
-                        txt.innerHTML = txt.innerHTML || '';
-                        txt.innerHTML += html[i];
-                    } catch (e) {
-                        txt.text = txt.text || ''
-                        txt.text += html[i];
-                    }
-                    continue;
-                }
-                
-                if (html[i] instanceof  Function) {
-                    html[i] = html[i]();
-                }
-                
-                if (html[i] instanceof String || typeof html[i] == 'string' || html[i] instanceof Array || typeof html[i] == 'number') {
-                    children = children.concat(dgv2(html[i]));
-                } else {
-                    for (var j in html[i]) {
-                        if (/^on.+/.test(j) && (html[i][j] instanceof Function)) {
-                            txt[j] = html[i][j];
-                        } else {
-                                $(txt).attr(j, html[i][j] + '');                            
-                        }
-//                        } else if (j == 'style'){
-//                            var styles = html[i][j].split(';');
-//                            for (var k = 0; k < styles.length; k++) {
-//                                if (styles[k] == '')
-//                                    continue;
-//                                var style = styles[k].split(':');
-//                               if (style.length != 2)
-//                                    continue;
-//                                style[0] = camelcase(style[0].replace(/^\s+|\s+$/g,""));
-//                                style[1] = style[1].replace(/^\s+|\s+$/g,"");
-//                                txt.style[style[0]] = style[1];
-//                            }
-//                        } else if (j == 'class') {
-//                            try {
-//                                txt.setAttribute(j, html[i][j] + '');
-//                                txt.className = html[i][j];
-//                            } catch (e) {
-//                                txt.className = html[i][j];
-//                            }
-//                           
-//                        } else {
-//                            txt.setAttribute(j, html[i][j] + '');
-//                        }
-                    }
-                }
-            }
-            if (tag == 'table') {
-                var aux = document.createElement('tbody');
-                for (var j = 0; j < children.length; j++) {
-                    aux.appendChild(children[j]);
-                }
-                txt.appendChild(aux);
+    return renderElement(parent, html);
+}
+
+function renderScriptElement(parent, html)
+{
+    if (html[i] instanceof  Function) {
+        dgf[dgi] = html[i];
+        html[i] = '(dgf[' + dgi + '])();';
+        dgi++;
+    } else if (typeof html[i] != 'string') {
+        for (var j in html[i]) {
+            if (/^on.+/.test(j) && (html[i][j] instanceof Function)) {
+                txt[j] = html[i][j];
             } else {
-                for (var j = 0; j < children.length; j++) {
-                    txt.appendChild(children[j]);
-                }
-            }
-            txt = [txt];
-        } else {
-            txt = [];
-            for (var i = 0; i < html.length; i++) {
-                txt = txt.concat(dgv2(html[i]));
+                $(txt).attr(j, html[i][j] + '');
             }
         }
-        return txt;
+        continue;
     }
+    try {
+        txt.innerHTML = txt.innerHTML || '';
+        txt.innerHTML += html[i];
+    } catch (e) {
+        txt.text = txt.text || ''
+        txt.text += html[i];
+    }
+}
+
+function renderElementStyleAttribute(parent, styles)
+{
+    if (typeof styles === 'string') {
+        parent.style = styles;
+    } else if (styles instanceof Function) {
+        parent = renderElementStyleAttribute(parent, styles());
+    } else {
+        for (let style in styles) {
+            if (styles.hasOwnProperty(style)) {
+                parent.style = parent.style + style + ": " + styles[style] + ";";
+            }
+        }
+    }
+    return parent;
+}
+
+/**
+ * @param parent
+ * @param attributes
+ * @returns {*}
+ */
+function renderElementAttributes(parent, attributes)
+{
+    for (let attr in attributes) {
+        if (!attributes.hasOwnProperty(attr)) {
+            continue;
+        }
+        if (/^on.+/.test(attr) && (attributes[attr] instanceof Function) {
+            parent[attr] = attributes[attr];
+        } else if (attr === "style") {
+            parent = renderElementStyleAttribute(parent, attributes[attr]);
+        } else if (attr === "class") {
+            try {
+                parent.setAttribute(attr, attributes[attr] + "");
+                parent.className = attributes[attr] + "";
+            } catch (e) {
+                parent.className = attributes[attr] + "";
+            }
+        } else {
+            parent.setAttribute(attr, attributes[attr] + "");
+        }
+    }
+    return parent;
+}
+
+/**
+ * @param parent
+ * @param children
+ * @returns {*}
+ */
+function renderElementChildren(parent, children)
+{
+    children = render(children);
+    for (var j = 0; j < children.length; j++) {
+        parent.appendChild(children[j]);
+    }
+    return parent;
+}
+
+/**
+ * @param parent
+ * @param html
+ * @returns {*}
+ */
+function renderElement(parent, html)
+{
+    if (parent && parent.tagName === "SCRIPT") {
+        return renderScriptElement(parent, html);
+    }
+    for (let child of html) {
+        if (typeof child === 'object' && !(child instanceof Array)) {
+            parent = renderElementAttributes(parent, child);
+        } else {
+            parent = renderElementChildren(paren, child);
+        }
+    }
+}
+
+function render(html)
+{
+    if (html instanceof Function) {
+        return render(html());
+    }
+    
+    if (html instanceof String || typeof html === 'string' || typeof html === 'number') {
+        return renderString(html);
+    }
+
+    if (html instanceof Array) {
+        return renderArray(html);
+    }
+
     return [];
 }
 
-function dgv2String (html) {
-    if (html instanceof Function) {
-        return dgv2(html());
-    }
-    
-    if (html instanceof String || typeof html == 'string' || typeof html == 'number') {
-        return html;
-    }
 
-    var generatedHtml = "";
-}
-
-
-exports.render = dgv2;
+exports.render = render;
 
 exports.renderString = dgv2String;
