@@ -7,51 +7,6 @@ const {JSDOM} = jsdom;
 const {window} = new JSDOM(`<!DOCTYPE html>`);
 const {document} = window;
 
-if (!Function.prototype.bind) {
-    Function.prototype.bind = function (oThis) {
-        if (typeof this !== "function") {
-            // closest thing possible to the ECMAScript 5 internal IsCallable function
-            throw new TypeError("Function.prototype.bind - what is trying to be bound is not callable");
-        }
-
-        var aArgs = Array.prototype.slice.call(arguments, 1),
-            fToBind = this,
-            fNOP = function () {},
-            fBound = function () {
-                return fToBind.apply(this instanceof fNOP
-                    ? this
-                    : oThis || window,
-                    aArgs.concat(Array.prototype.slice.call(arguments)));
-            };
-
-        fNOP.prototype = this.prototype;
-        fBound.prototype = new fNOP();
-
-        return fBound;
-    };
-}
-
-Function.prototype.dgBind = function (){
-    var arg = [this];
-    for (var i = 0; i < arguments.length; i++) {
-        arg.push(arguments[i]);
-    }
-    return this.bind.apply(this, arg);
-};
-
-
-String.prototype.ucfirst = function () {
-    return this.charAt(0).toUpperCase() + this.substr(1);
-};
-
-String.prototype.camelcase = function() {
-    var result = this.split('-');
-    for (var i =1; i < result.length; i++) {
-        result[i] = result[i].ucfirst();
-    }
-    return result.join('');
-};
-
 var dgDomScriptFunctions = {};
 
 var dgDomScriptMaxIndex = 0;
