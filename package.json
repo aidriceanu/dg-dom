@@ -1,5 +1,5 @@
 {
-  "name": "dg",
+  "name": "dg-dom",
   "version": "1.0.0",
   "description": "A simple and lightweight template engine for javascript.",
   "main": "index.js",

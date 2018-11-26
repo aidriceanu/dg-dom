@@ -7,17 +7,28 @@ const {JSDOM} = jsdom;
 const {window} = new JSDOM(`<!DOCTYPE html>`);
 const {document} = window;
 
-var dgDomScriptFunctions = {};
+var dgDomScriptFunctions = {"length": 0};
+exports.dgDomScriptFunctions = dgDomScriptFunctions;
 
-var dgDomScriptMaxIndex = 0;
-
+/**
+ * Render html provided as string
+ * @param html
+ * @returns {NodeListOf<Node & ChildNode>}
+ */
 function renderString(html)
 {
     let template = document.createElement('template');
     template.innerHTML = html;
-    return template.content.childNodes;
+    return Array.prototype.slice.call(template.content.childNodes);
 }
 
+exports.renderString = renderString;
+
+/**
+ * Render html provided as Array
+ * @param html
+ * @returns {*}
+ */
 function renderArray(html)
 {
     if (typeof html[0] === 'string' && html[0] !== '') {
@@ -27,20 +38,29 @@ function renderArray(html)
     return renderElement(parent, html);
 }
 
+/**
+ * Render Children of a script tag
+ * @param parent
+ * @param child
+ */
 function renderScriptElementChildren(parent, child) {
     if (child instanceof Function) {
-        dgDomScriptFunctions[dgDomScriptMaxIndex] = child;
-        child = '(dgDomScriptFunctions[' + dgDomScriptMaxIndex + '])();';
-        dgDomScriptMaxIndex++;
+        dgDomScriptFunctions[dgDomScriptFunctions.length] = child;
+        child = '(dgDomScriptFunctions[' + dgDomScriptFunctions.length + '])();';
+        dgDomScriptFunctions.length += 1;
     }
     try {
         parent.innerHTML = parent.innerHTML || '';
         parent.innerHTML += child;
     } catch (e) {
-        parent.text = parent.text || ''
+        parent.text = parent.text || '';
         parent.text += child;
     }
+
+    return parent;
 }
+
+exports.renderScriptElementChildren = renderScriptElementChildren;
 
 /**
  * Render script element
@@ -56,27 +76,10 @@ function renderScriptElement(parent, html)
             parent = renderScriptElementChildren(parent, child);
         }
     }
-    if (html instanceof  Function) {
-        dgDomScriptFunctions[dgDomScriptMaxIndex] = html;
-        html = '(dgDomScriptFunctions[' + dgDomScriptMaxIndex + '])();';
-        dgDomScriptMaxIndex++;
-    } else if (typeof html[i] != 'string') {
-        for (var j in html[i]) {
-            if (/^on.+/.test(j) && (html[i][j] instanceof Function)) {
-                txt[j] = html[i][j];
-            } else {
-                $(txt).attr(j, html[i][j] + '');
-            }
-        }
-    }
-    try {
-        txt.innerHTML = txt.innerHTML || '';
-        txt.innerHTML += html[i];
-    } catch (e) {
-        txt.text = txt.text || ''
-        txt.text += html[i];
-    }
+    return parent;
 }
+
+exports.renderScriptElement = renderScriptElement;
 
 /**
  * Render the style attribute
@@ -105,6 +108,7 @@ function renderElementStyleAttribute(parent, styles)
 exports.renderElementStyleAttribute = renderElementStyleAttribute;
 
 /**
+ * Render provided attributes of a element
  * @param parent
  * @param attributes
  * @returns {*}

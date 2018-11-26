@@ -5,7 +5,7 @@ const {JSDOM} = jsdom;
 const {window} = new JSDOM(`<!DOCTYPE html>`);
 const {document} = window;
 
-describe("String.renderElementStyleAttribute", function() {
+describe("Test.renderElementStyleAttribute", function() {
     it("Check you can set style using string: {style: 'color:red;'}", function(){
         let element = document.createElement("a");
         modifiedElement = dg.renderElementStyleAttribute(element, "color: red;");
