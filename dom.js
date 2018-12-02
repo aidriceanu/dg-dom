@@ -7,8 +7,28 @@ const {JSDOM} = jsdom;
 const {window} = new JSDOM(`<!DOCTYPE html>`);
 const {document} = window;
 
-var dgDomScriptFunctions = {"length": 0};
-exports.dgDomScriptFunctions = dgDomScriptFunctions;
+let dgDomScriptFunctions = {"length": 0};
+
+/**
+ * Reset Global Variables: used for testing
+ */
+function resetGlobals() {
+    dgDomScriptFunctions = {"length": 0};
+}
+
+exports.resetGlobals = resetGlobals;
+
+/**
+ * Returns Global Variables: used for testing
+ * @returns {{dgDomScriptFunctions: {length: number}}}
+ */
+function getGlogals() {
+    return {
+        dgDomScriptFunctions: dgDomScriptFunctions
+    };
+}
+
+exports.getGlogals = getGlogals;
 
 /**
  * Render html provided as string
@@ -34,8 +54,15 @@ function renderArray(html)
     if (typeof html[0] === 'string' && html[0] !== '') {
         let tagName = html.shift();
         var parent = document.createElement(tagName);
+
+        return [renderElement(parent, html)];
+    } else {
+        var elements = [];
+        for (var element of html) {
+            elements.push(render(element));
+        }
+        return elements;
     }
-    return renderElement(parent, html);
 }
 
 /**
@@ -137,6 +164,8 @@ function renderElementAttributes(parent, attributes)
     return parent;
 }
 
+exports.renderElementAttributes = renderElementAttributes;
+
 /**
  * @param parent
  * @param children
@@ -144,9 +173,11 @@ function renderElementAttributes(parent, attributes)
  */
 function renderElementChildren(parent, children)
 {
-    children = render(children);
-    for (var j = 0; j < children.length; j++) {
-        parent.appendChild(children[j]);
+    if (children) {
+        children = render(children);
+        for (var j = 0; j < children.length; j++) {
+            parent.appendChild(children[j]);
+        }
     }
     return parent;
 }
@@ -168,7 +199,10 @@ function renderElement(parent, html)
             parent = renderElementChildren(parent, child);
         }
     }
+    return parent;
 }
+
+exports.renderElement = renderElement;
 
 function render(html)
 {
