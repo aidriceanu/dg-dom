@@ -4,7 +4,7 @@
   "description": "A simple and lightweight template engine for javascript.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha $NODE_DEBUG_OPTION"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
