@@ -53,17 +53,19 @@ function renderArray(html)
 {
     if (typeof html[0] === 'string' && html[0] !== '') {
         let tagName = html.shift();
-        var parent = document.createElement(tagName);
+        let parent = document.createElement(tagName);
 
         return [renderElement(parent, html)];
     } else {
         var elements = [];
-        for (var element of html) {
-            elements.push(render(element));
+        for (let element of html) {
+            elements = elements.concat(render(element));
         }
         return elements;
     }
 }
+
+exports.renderArray = renderArray;
 
 /**
  * Render Children of a script tag
@@ -174,13 +176,15 @@ exports.renderElementAttributes = renderElementAttributes;
 function renderElementChildren(parent, children)
 {
     if (children) {
-        children = render(children);
-        for (var j = 0; j < children.length; j++) {
-            parent.appendChild(children[j]);
+        for (let child of render(children)) {
+            parent.appendChild(child);
         }
     }
+
     return parent;
 }
+
+exports.renderElementChildren = renderElementChildren;
 
 /**
  * @param parent
